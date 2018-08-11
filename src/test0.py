@@ -1,7 +1,10 @@
 import discord
 import asyncio
+import json
 
-token = raw_input('Token')
+with open('config.json') as f:
+    data = json.load(f)
+token = data["token"]
 client = discord.Client()
 
 @client.event
