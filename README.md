@@ -10,7 +10,7 @@ These instructions will get you a copy of Patrick Bot up and running on your loc
 
 What things you need to install the software and how to install them
 
-- Python 3.4-3.6
+- Python 3.4.x-3.6.x
 - aiohttp library
 - websockets library
 - discord library
@@ -65,7 +65,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Versioning
 
-For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+For the versions available, see the [tags on this repository](https://github.com/seendsouza/patrickbot/tags). 
 
 ## Authors
 
