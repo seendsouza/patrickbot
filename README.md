@@ -14,9 +14,10 @@ What things you need to install the software and how to install them
 - aiohttp library
 - websockets library
 - discord library
+- qiskit library
 
 ```bash
-pip3 install aiohttp websockets discord
+pip3 install aiohttp websockets discord qiskit
 ```
 
 ## Configuring the bot
@@ -39,7 +40,12 @@ To edit the configuration file, follow the comments within the template.
 Here is template.json for reference:
 
 ```json
-insertjsonhere
+{
+  # the bot token
+  "token": "",
+  # the prefix to the commands in the bot
+  "prefix": "!"
+}
 ```
 
 
