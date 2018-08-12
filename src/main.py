@@ -7,9 +7,8 @@ import json
 
 import discord
 
-from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
-from qiskit import available_backends, execute
-
+from commandhandler import CommandHandler
+from observequantum import ObserveQuantum
 
 # configuring the bot using config.json
 with open('config.json') as f:
@@ -17,46 +16,60 @@ with open('config.json') as f:
 
 token = data["token"]
 command_prefix = data["prefix"]
-observe_0 = "star"
-observe_1 = "wang"
+# add this to config.json
+observe_arguments = ["star","wang"]
 
 client = discord.Client()
 
-def observe_equal_superposition():
-    """
-    This function observes a qubit in equal quantum superposition.
-    Don't question the practicality of this.
-    @return: observed state (0 or 1)
-    """
-    # TODO: This is deprecated, so consider updating it.
-    # Create a Quantum Register with 1 qubit.
-    q = QuantumRegister(1)
-    # Create a Classical Register with 1 bit.
-    c = ClassicalRegister(1)
-    # Create a Quantum Circuit
-    qc = QuantumCircuit(q, c)
-    # Add a H gate on qubit 0, putting this qubit in superposition.
-    qc.h(q[0])
-    # Add a Measure gate to see the state.
-    qc.measure(q, c)
-    # Compile and run the Quantum circuit on a simulator backend
-    job_sim = execute(qc, "local_qasm_simulator",shots = 1)
-    sim_result = job_sim.result()
-    return next(iter(sim_result.get_counts(qc)))
+# assigning external classes to objects
+ch = CommandHandler(client)
+oq = ObserveQuantum(observe_arguments)
 
-def observe_success():
-    """
-    When a user guesses the state of the qubit after observation correctly
-    """
-    # TODO: Add currency to users stored in an external file.
-    # TODO: Let the user only observe once a day
-    pass
+# command functions
+def test_command(message,client,args):
+    return 'Test'
 
-def observe_failure():
+def observe_command(message,client,args):
     """
-    When a user guesse the state of the qubit after observation incorrectly
+    Checks if user inputted guess matches the state of a qubit after observation.
     """
-    pass
+    guess = message.content.lower()
+    if (observe_arguments[0] in guess) or (observe_arguments[1] in guess):
+        if oq.observed(guess) == True:
+            return '{} has successfully guessed the state of Patrick.'.format(message.author)
+        else:
+            return '{} has unsuccessfully guessed the state of Patrick.'.format(message.author)
+    else:
+        return '{} has inputted an invalid argument. Please input either Star or Wang.'.format(message.author)
+
+def swear_command(message,client,args):
+    # TODO: add this functionality
+    return 'Swear command not implemented'
+
+# adding commands that refer to the functions above
+ch.add_command({
+    'trigger': '!test',
+    'function': test_command,
+    'args_num': 0,
+    'args_name': [''],
+    'description': 'Prints number of messages.'
+})
+
+ch.add_command({
+    'trigger': '!observe',
+    'function': observe_command,
+    'args_num': 1,
+    'args_name': ['Expected State'],
+    'description': 'Observes a qubit in equal quantum superposition.'
+})
+
+ch.add_command({
+    'trigger': '!swear',
+    'function': swear_command,
+    'args_num': 0,
+    'args_name': [''],
+    'description': 'Swears from a list of swear words'
+})
 
 @client.event
 async def on_ready():
@@ -67,35 +80,22 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.content.startswith('{}test'.format(command_prefix)):
-        counter = 0
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        async for log in client.logs_from(message.channel, limit=100):
-            if log.author == message.author:
-                counter += 1
-        await client.edit_message(tmp, 'You have {} messages.'.format(counter))
-    elif message.content.startswith('{}observe'.format(command_prefix)):
-        if observe_0 in message.content.lower():
-            if int(observe_equal_superposition()) == 0:
-                await client.send_message(message.channel, '{} has successfully guessedthe state of '\
-                                                           'Patrick.'.format(message.author))
-                observe_success()
-            else:
-                await client.send_message(message.channel, '{} has unsuccessfully guessed the state of '\
-                                                           'Patrick.'.format(message.author))
-                observe_failure()
-        elif observe_1 in message.content.lower():
-            if int(observe_equal_superposition()) == 1:
-                await client.send_message(message.channel, '{} has successfully guessed the state of '\
-                                                           'Patrick.'.format(message.author))
-                observe_success()
-            else:
-                await client.send_message(message.channel, '{} has unsuccessfully guessed the state of '\
-                                                           'Patrick.'.format(message.author))
-                    
-                observe_failure()
-        else:
-            await client.send_message(message.channel, 'Invalid Input')
-    elif message.content.startswith('{}swear'.format(command_prefix)):
+    """
+    When a user in the server sends a message, this checks if a command is sent to the bot.
+    If it is for the bot, this will execute the command.
+    """
+    # if the message is from the bot itself ignore it
+    if message.author == client.user:
+        pass
+    else:
+        # try to evaluate with the command handler
+        try:
+            await ch.command_handler(message)
+        # message doesn't contain a command trigger, so ignore it
+        except TypeError as e:
+            pass
+        # any other python errors
+        except Exception as e:
+            print(e)
 
 client.run(token)
