@@ -11,13 +11,11 @@ These instructions will get you a copy of Patrick Bot up and running on your loc
 What things you need to install the software and how to install them
 
 - Python 3.4.x-3.6.x
-- aiohttp library
-- websockets library
 - discord library
 - qiskit library
 
 ```bash
-pip3 install aiohttp websockets discord qiskit
+pip3 install discord qiskit
 ```
 
 ## Configuring the bot
@@ -41,9 +39,7 @@ Here is template.json for reference:
 
 ```json
 {
-  # the bot token
-  "token": "",
-  # the prefix to the commands in the bot
+  "token": "the bot token",
   "prefix": "!"
 }
 ```
